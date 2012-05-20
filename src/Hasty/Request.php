@@ -135,9 +135,9 @@ class Request
         return $this->version;
     }
 
-    public function setQuery()
+    public function setQuery($query)
     {
-
+        $this->query = $query;
     }
 
     public function setPost()
@@ -343,9 +343,10 @@ class Request
     {
         $this->headers->set('host', $this->getUriHost());
         $this->headers->set('connection', 'close');
+        $query = ($this->query) ? '?'. $this->query : '';
         $request = $this->getMethod()
             . " "
-            . $this->getUriPath()
+            . $this->getUriPath().$query
             . " HTTP/"
             . $this->getVersion()
             . "\r\n"
@@ -372,6 +373,7 @@ class Request
         $host = $parts['host'];
         $path = '';
         $request = '';
+        $query = array();
         switch ($parts['scheme']) {
             case 'http':
                 if (isset($parts['port'])) {
@@ -402,12 +404,18 @@ class Request
         } else {
             $path = '/';
         }
+        if (isset($parts['query'])) {
+            //$query = parse_str($parts['query']);
+            $query = $parts['query'];
+        }
+
         $this->uri = $uri;
         $this->setUriScheme($parts['scheme']);
         $this->setUriHost($host);
         $this->setUriPort($port);
         $this->setUriPath($path);
         $this->setSocketUri($socket);
+        $this->setQuery($query);
     }
 
     protected function isCallable($callback)
